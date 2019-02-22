@@ -1,1 +1,0 @@
-daminaka@daminaka-mac03.local.60706
