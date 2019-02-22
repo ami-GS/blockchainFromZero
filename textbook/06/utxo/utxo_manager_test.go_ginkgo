@@ -1,0 +1,46 @@
+package utxo
+
+import (
+	"log"
+	"reflect"
+
+	"github.com/ami-GS/blockchainFromZero/textbook/06/key"
+	tx "github.com/ami-GS/blockchainFromZero/textbook/06/transaction"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+)
+
+var _ = Describe("UTXO", func() {
+	Context("when initialized", func() {
+		It("has the default contents", func() {
+			km := key.New()
+			um := NewUTXOManager(km.GetAddress())
+			Expect(reflect.DeepEqual(um, &UTXOManager{Address: km.GetAddress(), Balance: 0, InputsToMe: make([]tx.TxInput, 0)}))
+		})
+	})
+
+	Context("when there are 3 coinabse transactions on UTXO manager", func() {
+		It("contains added balance", func() {
+			kmFrom := key.New()
+			kmTo1 := key.New()
+			kmTo2 := key.New()
+			um := NewUTXOManager(kmFrom.GetAddress())
+			ctx1 := tx.NewCoinBaseTransaction(kmFrom.GetAddress(), 30)
+			ctx2 := tx.NewCoinBaseTransaction(kmFrom.GetAddress(), 30)
+			ctx3 := tx.NewCoinBaseTransaction(kmFrom.GetAddress(), 30)
+			tx1 := tx.New([]tx.TxInput{tx.TxInput{tx.Transaction(*ctx1), 0}},
+				[]tx.TxOutput{
+					tx.TxOutput{kmTo1.GetAddress(), "10"},
+					tx.TxOutput{kmTo2.GetAddress(), "20"},
+				},
+			)
+
+			txs := []tx.Transaction{
+				tx.Transaction(*ctx1), tx.Transaction(*ctx2), tx.Transaction(*ctx3), *tx1,
+			}
+			um.ExtractUTXO(txs)
+			log.Println(um.Balance)
+			Expect(um.Balance != 10)
+		})
+	})
+})
