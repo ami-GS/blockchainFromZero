@@ -31,11 +31,6 @@ func (a *AESUtils) GetKey() []byte {
 	return a.aesPass
 }
 
-func (a *AESUtils) pad(data []byte) []byte {
-	return append(data, make([]byte, a.blockSize-len(data))...)
-
-}
-
 // not secure encrypt
 func (a *AESUtils) EncryptSplit(data []byte) []byte {
 	i := 0
@@ -46,7 +41,7 @@ func (a *AESUtils) EncryptSplit(data []byte) []byte {
 	if len(data)%a.blockSize == 0 {
 		a.cipher.Encrypt(dst[i:i+a.blockSize], data[i:i+a.blockSize])
 	} else {
-		a.cipher.Encrypt(dst[i:], a.pad(data[i:]))
+		a.cipher.Encrypt(dst[i:], paddingByBlockSize(data[i:], a.blockSize))
 	}
 	return dst
 }
@@ -66,6 +61,10 @@ func (a *AESUtils) DecryptSplit(data []byte) []byte {
 func (a *AESUtils) DecryptSplitWithKey(data, aesPass []byte) []byte {
 	block, _ := aes.NewCipher(aesPass)
 	return DecryptSplit(data, block, a.blockSize)
+}
+
+func paddingByBlockSize(data []byte, blockSize int) []byte {
+	return append(data, make([]byte, blockSize-len(data))...)
 }
 
 // TODO: can be more generic utility func
