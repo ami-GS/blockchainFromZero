@@ -5,7 +5,6 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
-	"encoding/hex"
 	"log"
 
 	"github.com/ami-GS/blockchainFromZero/src/key/utils"
@@ -36,10 +35,6 @@ func New() *KeyManager {
 	return &KeyManager{
 		PrivateKey: *priv,
 	}
-}
-
-func (k *KeyManager) GetAddressByHexString() string {
-	return hex.EncodeToString(k.PrivateKey.PublicKey.N.Bytes())
 }
 
 func (k *KeyManager) Sign(data []byte) ([]byte, error) {

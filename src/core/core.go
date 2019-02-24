@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rsa"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -179,7 +180,7 @@ func (c *Core) SetPrivateKey(key rsa.PrivateKey) {
 }
 
 func (c *Core) GetPublicKeyByHexString() string {
-	return c.km.GetAddressByHexString()
+	return hex.EncodeToString(keyutils.PublicKeyToBytes(&c.km.PrivateKey.PublicKey))
 }
 
 func (c *Core) GetPublicKeyBytes() []byte {
