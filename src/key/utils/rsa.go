@@ -22,7 +22,7 @@ func EncryptByPubkey(data []byte, pubKey *rsa.PublicKey) []byte {
 	}
 	return ciphertext
 }
-func DecryptWithPrivateKey(ciphertext []byte, priv *rsa.PrivateKey) []byte {
+func DecryptWithPrivKey(ciphertext []byte, priv *rsa.PrivateKey) []byte {
 	hash := sha512.New()
 	plaintext, err := rsa.DecryptOAEP(hash, rand.Reader, priv, ciphertext, nil)
 	if err != nil {

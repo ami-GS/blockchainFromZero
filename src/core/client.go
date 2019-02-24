@@ -60,7 +60,7 @@ func (c *ClientCore) API(request message.RequestType, msg *message.Message) (mes
 				return message.API_ERROR, err
 			}
 			privKey := c.GetPrivateKey()
-			aesKey := keyutils.DecryptWithPrivateKey(cipherAesKey, privKey)
+			aesKey := keyutils.DecryptWithPrivKey(cipherAesKey, privKey)
 			cipherMsgBase64 := enhancedMsg["Body"]
 			cipherMsg, err := keyutils.DecodeBase64([]byte(cipherMsgBase64))
 			if err != nil {
