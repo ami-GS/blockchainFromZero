@@ -84,7 +84,7 @@ func (w *Wallet) LoadKeyPair(fname, passPhrase string) {
 		panic(err)
 	}
 
-	privateKey, err := keyutils.ParseRsaPrivateKeyFromPem(out)
+	privateKey, err := keyutils.BytesToPrivateKey(out)
 	if err != nil {
 		panic(err)
 	}
