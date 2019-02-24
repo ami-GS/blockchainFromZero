@@ -76,32 +76,18 @@ func ExportRsaPrivateKeyAsPem(privkey *rsa.PrivateKey) []byte {
 	)
 }
 
-func ParseRsaPrivateKeyFromPem(privPEM []byte) (*rsa.PrivateKey, error) {
-	block, _ := pem.Decode(privPEM)
+func BytesToPrivateKey(priv []byte) (*rsa.PrivateKey, error) {
+	block, _ := pem.Decode(priv)
 	if block == nil {
 		return nil, errors.New("failed to parse private key PEM block")
 	}
 
-	priv, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	key, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
 		return nil, err
 	}
 
-	return priv, nil
-}
-
-func ParseRsaPublicKeyFromPem(pubPEM []byte) (*rsa.PublicKey, error) {
-	block, _ := pem.Decode(pubPEM)
-	if block == nil {
-		return nil, errors.New("failed to parse public key PEM block")
-	}
-
-	pub, err := x509.ParsePKCS1PublicKey(block.Bytes)
-	if err != nil {
-		return nil, err
-	}
-
-	return pub, nil
+	return key, nil
 }
 
 func VerifySignRSA256(data, sign []byte, pubKey *rsa.PublicKey) error {

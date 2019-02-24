@@ -16,7 +16,7 @@ type KeyManager struct {
 }
 
 func NewWithKey(privKeyByte []byte) (*KeyManager, error) {
-	key, err := keyutils.ParseRsaPrivateKeyFromPem(privKeyByte)
+	key, err := keyutils.BytesToPrivateKey(privKeyByte)
 	if err != nil {
 		return nil, err
 	}
