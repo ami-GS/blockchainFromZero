@@ -131,8 +131,10 @@ func (w *Wallet) SendInstantMessage(toPubkeyBase64 string, msg string) error {
 		panic(err)
 	}
 
-	aesUtils := keyutils.NewAESUtils(16)
-	cipherMsg := aesUtils.EncryptSplit([]byte(msg))
+	//aesUtils := keyutils.NewAESUtils(16, "ECB")
+	aesUtils := keyutils.NewAESUtils(16, "CBC")
+	cipherMsg := aesUtils.Encrypt([]byte(msg))
+
 	cipherMsgBase64 := keyutils.EncodeBase64(cipherMsg)
 
 	aesKey := aesUtils.GetKey()

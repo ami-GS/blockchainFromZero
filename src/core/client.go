@@ -70,8 +70,12 @@ func (c *ClientCore) API(request message.RequestType, msg *message.Message) (mes
 			if err != nil {
 				panic(err)
 			}
-
-			plaintext := keyutils.DecryptSplit(cipherMsg, blk, 16)
+			mode := keyutils.NewDecryptor(blk, "CBC")
+			//mode := keyutils.NewDecryptor(blk, "ECB")
+			// WA in CBC and ECB cases
+			cipherMsg = cipherMsg[:len(cipherMsg)-2]
+			plaintext := make([]byte, len(cipherMsg))
+			mode.CryptBlocks(plaintext, cipherMsg)
 
 			enhancedMsg["Key"] = string(aesKey)
 			enhancedMsg["Body"] = string(plaintext)
