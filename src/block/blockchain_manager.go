@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"sync"
 
+	"github.com/ami-GS/blockchainFromZero/src/block/utils"
 	"github.com/ami-GS/blockchainFromZero/src/transaction"
 	"github.com/pkg/errors"
 )
@@ -148,7 +149,7 @@ func (b *BlockChainManager) IsValidBlock(prvHash []byte, blk Block, difficulty i
 		return false
 	}
 
-	digest := DoubleHashSha256(GetBytesWithNonce(msg, nonce))
+	digest := bcutils.DoubleHashSha256(bcutils.GetBytesWithNonce(msg, nonce))
 	if bytes.Equal(digest[len(digest)-difficulty:], make([]byte, difficulty)) {
 		log.Printf("Valid block: %v\n", blk)
 		return true
@@ -267,25 +268,4 @@ func (b *BlockChainManager) ValidateTxOut(txOut *transaction.TxOutput) bool {
 	}
 
 	return knownTxOut
-}
-
-// TODO: goto utility
-func DoubleHashSha256(data []byte) []byte {
-	tmp := sha256.Sum256(data)
-	tmp = sha256.Sum256(tmp[:])
-	return tmp[:]
-}
-
-// TODO: goto utility
-func GetBytesWithNonce(msg []byte, nonce uint64) []byte {
-	// TODO: can be optimized
-	return append(msg, []byte(strconv.FormatUint(nonce, 10))...)
-}
-
-func (b *BlockChainManager) GetHash(blk *Block) ([]byte, error) {
-	jsonBlk, err := json.Marshal(blk)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to jasonize block")
-	}
-	return DoubleHashSha256(jsonBlk), nil
 }
