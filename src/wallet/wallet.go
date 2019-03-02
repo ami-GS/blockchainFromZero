@@ -13,6 +13,7 @@ import (
 	"github.com/ami-GS/blockchainFromZero/src/p2p/message"
 	"github.com/ami-GS/blockchainFromZero/src/transaction"
 	"github.com/ami-GS/blockchainFromZero/src/utxo"
+	wutils "github.com/ami-GS/blockchainFromZero/src/wallet/utils"
 	"github.com/pkg/errors"
 )
 
@@ -24,7 +25,6 @@ type Wallet struct {
 }
 
 func New(clientCore *core.ClientCore) (*Wallet, []byte) {
-	//km := key.New()
 	address := clientCore.GetPublicKeyBytes()
 	um := utxo.NewUTXOManager(address)
 	debugVal := os.Getenv("DEBUG_ADD_COIN")
@@ -89,27 +89,6 @@ func (w *Wallet) LoadKeyPair(fname, passPhrase string) {
 		panic(err)
 	}
 	w.client.SetPrivateKey(*privateKey)
-}
-
-func (t *Wallet) computeChange(txInputs []transaction.TxInput, txOutputs []transaction.TxOutput, fee int) int {
-	totalIn := 0
-	totalOut := fee
-	for _, txIn := range txInputs {
-		output := txIn.GetTargetOutput()
-		tmp, err := strconv.Atoi(output.Value)
-		if err != nil {
-			panic(err)
-		}
-		totalIn += tmp
-	}
-	for _, txOut := range txOutputs {
-		tmp, err := strconv.Atoi(txOut.Value)
-		if err != nil {
-			panic(err)
-		}
-		totalOut += tmp
-	}
-	return totalIn - totalOut
 }
 
 func (w *Wallet) SendCoin(toAddr string, amount int, fee int) error {
@@ -182,7 +161,7 @@ func (w *Wallet) genTransaction(toAddr []byte, amount int, fee int) (*transactio
 	}
 
 	txOutputs := []transaction.TxOutput{transaction.TxOutput{toAddr, strconv.Itoa(amount)}}
-	change := w.computeChange(txInputs, txOutputs, fee)
+	change := wutils.ComputeChange(txInputs, txOutputs, fee)
 	if change < 0 {
 		return nil, errors.Wrap(nil, "total output coins exceeds your balance")
 	}
