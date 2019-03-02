@@ -8,8 +8,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"net"
-	"os"
 	"strings"
 
 	"github.com/ami-GS/blockchainFromZero/src/block"
@@ -17,6 +15,7 @@ import (
 	"github.com/ami-GS/blockchainFromZero/src/key/utils"
 	"github.com/ami-GS/blockchainFromZero/src/p2p"
 	"github.com/ami-GS/blockchainFromZero/src/p2p/message"
+	p2putils "github.com/ami-GS/blockchainFromZero/src/p2p/utils"
 	"github.com/ami-GS/blockchainFromZero/src/transaction"
 )
 
@@ -70,7 +69,7 @@ func newCore(port uint16, bootStrapNode *p2p.Node, apiCallback func(msg *message
 		coreContext:       ctx,
 		coreCancel:        cancel,
 	}
-	c.IP = strings.Split(c.GetMyExternalIP(), "/")[0]
+	c.IP = strings.Split(p2putils.GetExternalIP(), "/")[0]
 	if bootStrapNode != nil && c.Port == bootStrapNode.Port {
 		// for local experiment purpose
 		c.IP = "127.0.0.1"
@@ -135,27 +134,6 @@ func (s *Core) Start() {
 func (s *Core) Shutdown() {
 	s.State = STATE_SHUTTING_DOWN
 	s.cm.ConnectionClose()
-}
-
-// TODO: in utils/ ?
-func (s *Core) GetMyExternalIP() string {
-	debugVal := os.Getenv("DEBUG_LOCAL_IP")
-	if debugVal != "" {
-		return "127.0.0.1"
-	}
-
-	ifaces, _ := net.Interfaces()
-	for _, iface := range ifaces {
-		addrs, _ := iface.Addrs()
-		for _, addr := range addrs {
-			tmp := addr.String()
-			if strings.Count(tmp, ".") == 3 && !strings.HasPrefix(tmp, "127.0.0.1") {
-				return strings.Split(tmp, "/")[0]
-			}
-		}
-	}
-	return ""
-
 }
 
 func (c *Core) GetTransactionsFromChain() []transaction.Transaction {
