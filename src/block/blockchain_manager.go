@@ -2,11 +2,10 @@ package block
 
 import (
 	"bytes"
-	"crypto/sha256"
+	"context"
 	"encoding/json"
 	"log"
 	"reflect"
-	"strconv"
 	"sync"
 
 	"github.com/ami-GS/blockchainFromZero/src/transaction"
@@ -15,17 +14,25 @@ import (
 
 type BlockChainManager struct {
 	Chain        BlockChain // slice of pointer is not good to access items linearly
+	bb           *BlockBuilder
 	genesisBlock *GenesisBlock
 	mu           *sync.Mutex
 }
 
-func NewBlockChainManager(blk *GenesisBlock) *BlockChainManager {
+func NewBlockChainManager() *BlockChainManager {
 	log.Println("Initializing BlockChain Manager...")
+	bb := NewBlockBuilder()
+	blk := bb.GenerateGenesisBlock()
 	return &BlockChainManager{
 		Chain:        []Block{Block(*blk)},
 		genesisBlock: blk,
+		bb:           bb,
 		mu:           new(sync.Mutex),
 	}
+}
+
+func (b *BlockChainManager) GenerateNewBlock(transactions []transaction.Transaction, prevBlkHash []byte, ctx *context.Context) *Block {
+	return b.bb.GenerateNewBlock(transactions, prevBlkHash, ctx)
 }
 
 func (b *BlockChainManager) setGenesisBlock(blk *GenesisBlock) {
@@ -47,7 +54,7 @@ func (b *BlockChainManager) SetChain(chain BlockChain) ([]byte, error) {
 		return nil, errors.Wrap(nil, "Invalid chain")
 	}
 	b.Chain = chain
-	return b.GetHash(&b.Chain[len(b.Chain)-1])
+	return b.Chain[len(b.Chain)-1].GetHash()
 }
 
 func (b *BlockChainManager) GetTransactionsFromOrphanBlocks(orphanBlocks []Block) []transaction.Transaction {
@@ -119,7 +126,7 @@ func (b *BlockChainManager) ResolveBranch(chain BlockChain) ([]byte, []Block) {
 	if err != nil {
 		return nil, nil
 	}
-	hash, err := b.GetHash(&chain[len(chain)-1])
+	hash, err := chain[len(chain)-1].GetHash()
 	if err != nil {
 		return nil, nil
 	}
@@ -158,7 +165,7 @@ func (b *BlockChainManager) IsValidChain(chain BlockChain) bool {
 	prvBlk := chain[0]
 	for i := 1; i < len(chain); i++ {
 		blk := chain[i]
-		prvHash, err := b.GetHash(&prvBlk)
+		prvHash, err := prvBlk.GetHash()
 		if err != nil {
 			panic("TODO: error")
 			return false

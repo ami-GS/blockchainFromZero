@@ -79,7 +79,7 @@ func (s *ServerCore) generateBlockLoop() {
 		coinbaseTx := transaction.NewCoinBaseTransaction(s.GetPublicKeyBytes(), fee)
 		// WARN: this is stopped if valid NEW_BLOCK comes
 		trimmedTxs = append(trimmedTxs, *coinbaseTx)
-		newBlk := s.bb.GenerateNewBlock(trimmedTxs, prvHash, &thisCtx)
+		newBlk := s.bm.GenerateNewBlock(trimmedTxs, prvHash, &thisCtx)
 		if newBlk == nil {
 			// nil means process canceled
 			return nil
@@ -92,7 +92,7 @@ func (s *ServerCore) generateBlockLoop() {
 		}
 
 		s.bm.AppendNewBlock(newBlk)
-		prvBlkHash, err := s.bm.GetHash(newBlk)
+		prvBlkHash, err := newBlk.GetHash()
 		if err != nil {
 			panic(err)
 		}
@@ -292,7 +292,7 @@ func (s *ServerCore) handleMessage(msg *message.Message, peer *p2p.Node) error {
 			// stop block generation
 			s.genBlockLoopCancel()
 
-			hashByte, err := s.bm.GetHash(&newBlk)
+			hashByte, err := newBlk.GetHash()
 			if err != nil {
 				panic(err)
 			}
@@ -330,9 +330,6 @@ func (s *ServerCore) handleMessage(msg *message.Message, peer *p2p.Node) error {
 		}
 	case message.ENHANCED:
 		log.Println("Received enhanced message")
-
-		// TODO: dup check should not be here
-
 		return s.mpmh.HandleMessage(msg, s.API)
 	default:
 		return errors.Wrap(nil, "Unknown message type")

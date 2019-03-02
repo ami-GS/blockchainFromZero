@@ -1,6 +1,11 @@
 package block
 
-import "fmt"
+import (
+	"fmt"
+	"reflect"
+
+	"github.com/ami-GS/blockchainFromZero/src/transaction"
+)
 
 type BlockChain []Block
 

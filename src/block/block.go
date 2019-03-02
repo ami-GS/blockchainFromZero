@@ -5,11 +5,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"math"
 	"reflect"
 	"time"
 
 	"github.com/ami-GS/blockchainFromZero/src/transaction"
+	"github.com/pkg/errors"
 )
 
 type Block struct {
@@ -58,6 +58,14 @@ func (b *Block) GetTotalFee() int {
 		totalFee += tx.GetFee()
 	}
 	return totalFee
+}
+
+func (b *Block) GetHash() ([]byte, error) {
+	jsonBlk, err := json.Marshal(b)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to jasonize block")
+	}
+	return bcutils.DoubleHashSha256(jsonBlk), nil
 }
 
 func newBlock(transactions []transaction.Transaction, prevBlkHash []byte, ctx *context.Context) *Block {

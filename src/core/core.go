@@ -41,7 +41,6 @@ type Core struct {
 	Port  uint16 // can be conn struct?
 	cm    p2p.ConnectionManagerI
 	// TODO: BlockBuilder sould be in BlockChainManager
-	bb                *block.BlockBuilder
 	bm                *block.BlockChainManager
 	km                *key.KeyManager
 	prvBlkHash        []byte
@@ -53,14 +52,14 @@ type Core struct {
 
 func newCore(port uint16, bootStrapNode *p2p.Node, apiCallback func(msg *message.Message, peer *p2p.Node) error, isCore bool) *Core {
 	ctx, cancel := context.WithCancel(context.Background())
-	bb := block.NewBlockBuilder()
-	genesis := bb.GenerateGenesisBlock()
-	bm := block.NewBlockChainManager(genesis)
-	prvBlkHash, _ := bm.GetHash(((*block.Block)(genesis)))
+	bm := block.NewBlockChainManager()
+	prvBlkHash, err := bm.Chain[0].GetHash() // genesis
+	if err != nil {
+		panic(err)
+	}
 	c := &Core{
 		State:             STATE_INIT,
 		Port:              port,
-		bb:                bb,
 		bm:                bm,
 		km:                key.New(),
 		prvBlkHash:        prvBlkHash,
