@@ -184,14 +184,8 @@ func (c *ConnectionManagerCore) handleMessage(conn net.Conn) error {
 }
 
 func (c *ConnectionManagerCore) addPeer(ip string, port uint16, msType MessageType) {
-	portStr := strconv.Itoa(int(port))
-	if msType == ADD {
-		log.Printf("Adding Core: %s:%s", ip, portStr)
-		c.coreNodeSet.AddString(ip + ":" + portStr)
-	} else if msType == ADD_AS_EDGE {
-		log.Printf("Adding Edge: %s:%s", ip, portStr)
-		c.edgeNodeSet.AddString(ip + ":" + portStr)
-	}
+	log.Printf("Adding Core: %s:%d", ip, port)
+	c.coreNodeSet.Add(ip, port, nil)
 }
 
 func (c *ConnectionManagerCore) addEdge(ip string, port uint16, pubkey []byte) {
