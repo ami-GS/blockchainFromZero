@@ -93,7 +93,8 @@ func (c *ConnectionManagerCore) handleMessage(conn net.Conn) error {
 	ipv4 := strings.Split(conn.RemoteAddr().String(), ":")
 	if rsp == OK_WITHOUT_PAYLOAD {
 		switch msg.Type {
-		case ADD: //, ADD_AS_EDGE:
+		case ADD:
+			log.Println("ADD node request")
 			c.addPeer(ipv4[0], msg.MyPort, msg.Type)
 			if ipv4[0] == c.host && msg.MyPort == c.port {
 				return nil
@@ -102,13 +103,7 @@ func (c *ConnectionManagerCore) handleMessage(conn net.Conn) error {
 			if nodesStr == "" {
 				return nil
 			}
-
-			//if msg.Type == ADD {
-			log.Println("ADD node request")
 			return c.SendMsgBroadcast([]byte(nodesStr), CORE_LIST)
-			//}
-			//log.Println("ADD_AS_EDGE request")
-			//return c.SendMsgTo([]byte(nodesStr), CORE_LIST, &Node{ipv4[0], msg.MyPort, nil})
 		case REMOVE:
 			log.Printf("REMOVE request from %d\n", ipv4[0], msg.MyPort)
 			c.removePeer(ipv4[0], msg.MyPort, msg.Type)
@@ -165,6 +160,7 @@ func (c *ConnectionManagerCore) handleMessage(conn net.Conn) error {
 			c.coreNodeSet.OverWriteByString(string(msg.Payload))
 			log.Println("latest core node list:", c.coreNodeSet.GetNodesByString())
 		case ADD_AS_EDGE:
+			log.Println("ADD_AS_EDGE request")
 			c.addEdge(ipv4[0], msg.MyPort, msg.Payload)
 			if ipv4[0] == c.host && msg.MyPort == c.port {
 				return nil
@@ -173,7 +169,6 @@ func (c *ConnectionManagerCore) handleMessage(conn net.Conn) error {
 			if nodesStr == "" {
 				return nil
 			}
-			log.Println("ADD_AS_EDGE request")
 			// msg.Payload is pubkey of base64 encoded
 			return c.SendMsgTo([]byte(nodesStr), CORE_LIST, &Node{ipv4[0], msg.MyPort, nil})
 		default:

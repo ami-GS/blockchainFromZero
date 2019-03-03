@@ -217,7 +217,6 @@ func (t *Transaction) GetUsedOutputsP() []*TxOutput {
 	return outs
 }
 
-// TODO: transaction utils
 func (t Transaction) GetFee() int {
 	feeIn := 0
 	feeOut := 0
@@ -250,7 +249,6 @@ type CoinBaseTransaction struct {
 	*Transaction
 }
 
-//func NewCoinBaseTransaction(recipient string, value int) *CoinBaseTransaction {
 func NewCoinBaseTransaction(recipient []byte, value int) *Transaction {
 	val := strconv.Itoa(value)
 
@@ -258,10 +256,6 @@ func NewCoinBaseTransaction(recipient []byte, value int) *Transaction {
 		Recipient: recipient,
 		Value:     val,
 	}
-
-	// t := &CoinBaseTransaction{
-	// 	Transaction: New(nil, []TxOutput{txout}),
-	// }
 
 	t := New(nil, []TxOutput{txout})
 	t.IsCoinBase = true
