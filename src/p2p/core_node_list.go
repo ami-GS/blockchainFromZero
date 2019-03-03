@@ -64,11 +64,11 @@ func (c *NodeSet) AddString(network string) {
 
 func (c *NodeSet) Add(ip string, port uint16, pubkey []byte) {
 	portStr := strconv.Itoa(int(port))
-	pubkeyStr := ""
+	addString := ip + ":" + portStr
 	if pubkey != nil {
-		pubkeyStr = base64.StdEncoding.EncodeToString(pubkey)
+		addString += ":" + base64.StdEncoding.EncodeToString(pubkey)
 	}
-	c.AddString(ip + ":" + portStr + ":" + pubkeyStr)
+	c.AddString(addString)
 }
 
 func (c *NodeSet) Remove(network string) {
