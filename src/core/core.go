@@ -69,11 +69,6 @@ func newCore(port uint16, bootStrapNode *p2p.Node, apiCallback func(msg *message
 		coreCancel:        cancel,
 	}
 	c.IP = strings.Split(p2putils.GetExternalIP(), "/")[0]
-	if bootStrapNode != nil && c.Port == bootStrapNode.Port {
-		// for local experiment purpose
-		c.IP = "127.0.0.1"
-		c.BootstrapCoreNode = nil
-	}
 	if isCore {
 		log.Printf("Core address is %s:%d\n", c.IP, c.Port)
 		c.cm = p2p.NewConnectionManagerCore(c.IP, port, bootStrapNode, apiCallback)
